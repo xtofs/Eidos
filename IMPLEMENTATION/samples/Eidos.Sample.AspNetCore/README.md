@@ -9,6 +9,7 @@ Minimal ASP.NET Core app that demonstrates Eidos-driven endpoint mapping using t
 - Use V0.1 key semantics (`key : String`) via `/persons/{key}` and `/employments/{key}`.
 - Emit diagnostics from route coverage validation during startup.
 - Back the handlers with a real repository (`IHumanResourcesRepository`) — SQLite or in-memory.
+- Serve a generated **OpenAPI 3.0** document at `/openapi.json` (produced by `Eidos.Core` from the schema).
 
 ## Storage
 

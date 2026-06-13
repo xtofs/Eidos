@@ -7,6 +7,9 @@ GET {{base}}/
 ### get a list of available endpoints as plain text
 GET {{base}}/?format=plain
 
+### get the generated OpenAPI 3.0 document
+GET {{base}}/openapi.json
+
 
 ##############
 ## person

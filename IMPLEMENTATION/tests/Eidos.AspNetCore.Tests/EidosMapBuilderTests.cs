@@ -1,4 +1,5 @@
 using Eidos.Core;
+using Eidos.Core.OpenApi;
 using Eidos.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -246,6 +247,38 @@ public class EidosMapBuilderTests
     private static IResult EmploymentTransition(string key, StateTransitionRequest request) => Results.Ok(new { key, request.State });
 
     private static IResult EmploymentDelete(string key) => Results.NoContent();
+
+    [Fact]
+    public async Task MapOpenApiEndpoint_ServesValidOpenApiJson()
+    {
+        var app = BuildApp();
+        var document = EidosGrammarParser.Parse("""
+            entity Person {
+              lifecycle: Activatable
+            }
+            """);
+
+        app.CreateEidosMapBuilder(document).MapOpenApiEndpoint("/openapi.json", new ApiInfo("Test API", "1.0"));
+
+        await app.StartAsync();
+        try
+        {
+            var response = await app.GetTestClient().GetAsync("/openapi.json");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+
+            using var parsed = System.Text.Json.JsonDocument.Parse(json); // must be valid JSON
+            Assert.StartsWith("3.0", parsed.RootElement.GetProperty("openapi").GetString());
+            Assert.Contains("/persons", json, StringComparison.Ordinal);
+            Assert.Contains("/persons/{key}/_state", json, StringComparison.Ordinal);
+            Assert.True(parsed.RootElement.GetProperty("components").GetProperty("schemas").TryGetProperty("Person", out _));
+        }
+        finally
+        {
+            await app.StopAsync();
+            await app.DisposeAsync();
+        }
+    }
 
     [Fact]
     public async Task GetRelationship_ExpandsParticipants_WhenExpandQueryIsProvided()

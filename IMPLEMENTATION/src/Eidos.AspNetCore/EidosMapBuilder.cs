@@ -1,8 +1,11 @@
 using Eidos.Core;
+using Eidos.Core.OpenApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.OpenApi;
 using System.Globalization;
+using System.IO;
 
 namespace Eidos.AspNetCore;
 
@@ -23,6 +26,8 @@ public sealed class EidosMapBuilder
     private readonly Dictionary<string, Func<string, object?>> _entityResolvers =
         new(StringComparer.Ordinal);
 
+    private readonly EidosDocumentSyntax _document;
+
     internal EidosMapBuilder(
         IEndpointRouteBuilder endpoints,
         EidosDocumentSyntax document,
@@ -32,6 +37,7 @@ public sealed class EidosMapBuilder
         _endpoints = endpoints;
         _options = options;
         _operationPolicy = operationPolicy;
+        _document = document;
 
         _entities = document.Declarations
             .OfType<EntityDeclarationSyntax>()
@@ -144,6 +150,33 @@ public sealed class EidosMapBuilder
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(pattern);
         _endpoints.MapGet(pattern, GetMetadata);
+        return this;
+    }
+
+    /// <summary>
+    /// Builds the provider-neutral OpenAPI model (§5.2) for this document. The schema substance comes from
+    /// the parsed AST, not from the runtime route registrations.
+    /// </summary>
+    public OpenApiModel BuildOpenApiModel(ApiInfo info)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        return OpenApiModelGenerator.Generate(_document, info);
+    }
+
+    /// <summary>Serves the generated OpenAPI 3.0 document as JSON at <paramref name="pattern"/>.</summary>
+    public EidosMapBuilder MapOpenApiEndpoint(string pattern = "/openapi.json", ApiInfo? info = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(pattern);
+        var apiInfo = info ?? new ApiInfo("Eidos API", "0.1");
+
+        _endpoints.MapGet(pattern, () =>
+        {
+            var document = OpenApiDocumentFactory.Create(OpenApiModelGenerator.Generate(_document, apiInfo));
+            using var stringWriter = new StringWriter();
+            document.SerializeAsV3(new OpenApiJsonWriter(stringWriter));
+            return Results.Text(stringWriter.ToString(), "application/json");
+        });
+
         return this;
     }
     // Task RequestDelegate(HttpContext context);

@@ -1,5 +1,6 @@
 using Eidos.AspNetCore;
 using Eidos.Core;
+using Eidos.Core.OpenApi;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 
 namespace Eidos.Sample.HumanResources;
@@ -43,7 +44,8 @@ internal sealed class HumanResourcesService(IHumanResourcesRepository repository
                     .Transition(TransitionEmployment)
                     .Update<JsonPatchDocument<EmploymentPatch>>(UpdateEmployment)
                     .Delete(DeleteEmployment))
-                .MapMetadataEndpoint("/");
+                .MapMetadataEndpoint("/")
+                .MapOpenApiEndpoint("/openapi.json", new ApiInfo("Eidos HR Sample", "0.1"));
         }, options =>
         {
             options.OnDiagnostic = diagnostic =>
