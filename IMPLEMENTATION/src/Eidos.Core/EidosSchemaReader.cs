@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Eidos.Parser;
+namespace Eidos.Core;
 
 /// <summary>
 /// Convenience entry point for parsing Eidos schemas from a <see cref="PipeReader"/>,

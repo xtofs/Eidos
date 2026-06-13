@@ -1,6 +1,6 @@
 using System;
 
-namespace Eidos.Parser;
+namespace Eidos.Core;
 
 public sealed class EidosParseException : Exception
 {

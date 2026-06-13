@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Eidos.AspNetCore\Eidos.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\EidosParser\EidosParser.csproj" />
+    <ProjectReference Include="..\..\src\EidosCore\Eidos.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

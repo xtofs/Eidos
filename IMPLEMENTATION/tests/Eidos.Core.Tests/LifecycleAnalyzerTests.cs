@@ -1,7 +1,7 @@
 using System.Linq;
-using Eidos.Parser.Analysis;
+using Eidos.Core.Analysis;
 
-namespace Eidos.Parser.Tests;
+namespace Eidos.Core.Tests;
 
 public class LifecycleAnalyzerTests
 {

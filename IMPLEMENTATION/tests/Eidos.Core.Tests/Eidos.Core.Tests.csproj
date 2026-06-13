@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EidosParser\EidosParser.csproj" />
+    <ProjectReference Include="..\..\src\EidosCore\Eidos.Core.csproj" />
   </ItemGroup>
 
 </Project>

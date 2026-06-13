@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Eidos.Parser.Analysis;
+namespace Eidos.Core.Analysis;
 
 /// <summary>
 /// Performs the determinism analysis described in spec §5.1 on every state machine
