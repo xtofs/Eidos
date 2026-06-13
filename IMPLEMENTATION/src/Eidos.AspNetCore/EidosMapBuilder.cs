@@ -738,7 +738,7 @@ public sealed class EidosRelationshipRouteBuilder
 
     public EidosRelationshipRouteBuilder GetEntity(Func<string, IDictionary<string, object?>?> handler)
     {
-        _inner.Get((string key, HttpRequest request) =>
+        _inner.Get(async (string key, HttpRequest request) =>
         {
             var baseEntity = handler(key);
             if (baseEntity is null)
@@ -746,7 +746,7 @@ public sealed class EidosRelationshipRouteBuilder
                 return Results.NotFound();
             }
 
-            return BuildExpandedResult(baseEntity, request);
+            return await BuildExpandedResultAsync(baseEntity, request).ConfigureAwait(false);
         });
         return this;
     }
@@ -761,14 +761,14 @@ public sealed class EidosRelationshipRouteBuilder
                 return Results.NotFound();
             }
 
-            return BuildExpandedResult(baseEntity, request);
+            return await BuildExpandedResultAsync(baseEntity, request).ConfigureAwait(false);
         });
         return this;
     }
 
     public EidosRelationshipRouteBuilder GetEntity(Func<string, IResult> handler)
     {
-        _inner.Get((string key, HttpRequest request) =>
+        _inner.Get(async (string key, HttpRequest request) =>
         {
             var result = handler(key);
             if (!TryExtractEntityMap(result, out var baseEntity))
@@ -776,21 +776,21 @@ public sealed class EidosRelationshipRouteBuilder
                 return result;
             }
 
-            return BuildExpandedResult(baseEntity, request);
+            return await BuildExpandedResultAsync(baseEntity, request).ConfigureAwait(false);
         });
         return this;
     }
 
     public EidosRelationshipRouteBuilder GetEntity(
         Func<string, IResult> handler,
-        Func<string, object?> firstParticipantEntityResolver,
-        Func<string, object?> secondParticipantEntityResolver)
+        Func<string, Task<object?>> firstParticipantEntityResolver,
+        Func<string, Task<object?>> secondParticipantEntityResolver)
     {
         ArgumentNullException.ThrowIfNull(handler);
         ArgumentNullException.ThrowIfNull(firstParticipantEntityResolver);
         ArgumentNullException.ThrowIfNull(secondParticipantEntityResolver);
 
-        _inner.Get((string key, HttpRequest request) =>
+        _inner.Get(async (string key, HttpRequest request) =>
         {
             var result = handler(key);
             if (!TryExtractEntityMap(result, out var baseEntity))
@@ -804,7 +804,7 @@ public sealed class EidosRelationshipRouteBuilder
                 return result;
             }
 
-            return BuildExpandedResult(baseEntity, request, participantResolvers);
+            return await BuildExpandedResultAsync(baseEntity, request, participantResolvers).ConfigureAwait(false);
         });
         return this;
     }
@@ -819,15 +819,15 @@ public sealed class EidosRelationshipRouteBuilder
                 return result;
             }
 
-            return BuildExpandedResult(baseEntity, request);
+            return await BuildExpandedResultAsync(baseEntity, request).ConfigureAwait(false);
         });
         return this;
     }
 
     public EidosRelationshipRouteBuilder GetEntity(
         Func<string, Task<IResult>> handler,
-        Func<string, object?> firstParticipantEntityResolver,
-        Func<string, object?> secondParticipantEntityResolver)
+        Func<string, Task<object?>> firstParticipantEntityResolver,
+        Func<string, Task<object?>> secondParticipantEntityResolver)
     {
         ArgumentNullException.ThrowIfNull(handler);
         ArgumentNullException.ThrowIfNull(firstParticipantEntityResolver);
@@ -847,7 +847,7 @@ public sealed class EidosRelationshipRouteBuilder
                 return result;
             }
 
-            return BuildExpandedResult(baseEntity, request, participantResolvers);
+            return await BuildExpandedResultAsync(baseEntity, request, participantResolvers).ConfigureAwait(false);
         });
         return this;
     }
@@ -908,10 +908,10 @@ public sealed class EidosRelationshipRouteBuilder
         return this;
     }
 
-    private IResult BuildExpandedResult(
+    private async Task<IResult> BuildExpandedResultAsync(
         IDictionary<string, object?> baseEntity,
         HttpRequest request,
-        IReadOnlyDictionary<string, Func<string, object?>>? participantResolvers = null)
+        IReadOnlyDictionary<string, Func<string, Task<object?>>>? participantResolvers = null)
     {
         var expandItems = ParseExpand(request);
         if (expandItems.Count == 0)
@@ -951,7 +951,7 @@ public sealed class EidosRelationshipRouteBuilder
 
             if (participantResolvers is not null && participantResolvers.TryGetValue(participantName, out var resolver))
             {
-                var resolved = resolver(refKey);
+                var resolved = await resolver(refKey).ConfigureAwait(false);
                 if (resolved is not null)
                 {
                     expanded[participantName] = resolved;
@@ -987,9 +987,9 @@ public sealed class EidosRelationshipRouteBuilder
         return Results.Ok(expanded);
     }
 
-    private IReadOnlyDictionary<string, Func<string, object?>>? BuildTwoParticipantResolvers(
-        Func<string, object?> firstParticipantEntityResolver,
-        Func<string, object?> secondParticipantEntityResolver)
+    private IReadOnlyDictionary<string, Func<string, Task<object?>>>? BuildTwoParticipantResolvers(
+        Func<string, Task<object?>> firstParticipantEntityResolver,
+        Func<string, Task<object?>> secondParticipantEntityResolver)
     {
         if (_declaration.Participants.Count != 2)
         {
@@ -1003,7 +1003,7 @@ public sealed class EidosRelationshipRouteBuilder
             return null;
         }
 
-        return new Dictionary<string, Func<string, object?>>(StringComparer.Ordinal)
+        return new Dictionary<string, Func<string, Task<object?>>>(StringComparer.Ordinal)
         {
             [_declaration.Participants[0].Name] = firstParticipantEntityResolver,
             [_declaration.Participants[1].Name] = secondParticipantEntityResolver

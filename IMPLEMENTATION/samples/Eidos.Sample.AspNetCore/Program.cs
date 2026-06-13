@@ -1,4 +1,5 @@
 using Eidos.AspNetCore;
+using Eidos.Sample.HumanResources;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpLogging;
 using System.Diagnostics;
@@ -10,12 +11,6 @@ public partial class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // builder.Services.AddHttpLogging(logging =>
-        // {
-        //     logging.LoggingFields = HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath | HttpLoggingFields.RequestScheme | HttpLoggingFields.RequestQuery |
-        //                             HttpLoggingFields.ResponseStatusCode;
-        // });
-
         builder.Services.ConfigureHttpJsonOptions(options =>
         {
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -23,12 +18,20 @@ public partial class Program
 
         builder.Logging.AddConsole();
 
+        // register the HR repository (SQLite by default; see appsettings 'Hr:Provider' / 'ConnectionStrings:HrDb')
+        builder.UseHumanResourcesRepository();
+
+        // ////////////////////////
+        // Web Application configuration
 
         var app = builder.Build();
         app.Use(SimpleHttpLoggingMiddleware);
 
-        // wire up the management API
-        app.MapEndpoints();
+        // create schema + seed sample data once at startup
+        app.Services.GetRequiredService<IHumanResourcesRepository>().Initialize();
+
+        // wire up the HR API
+        app.MapHrEndpoints();
 
         app.Run();
 

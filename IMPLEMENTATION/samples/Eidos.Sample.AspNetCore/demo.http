@@ -7,9 +7,37 @@ GET {{base}}/
 ### get a list of available endpoints as plain text
 GET {{base}}/?format=plain
 
+
+##############
+## person
+
 ### get a list of available entities of type person
 GET {{base}}/persons
 
+###
+GET {{base}}/persons/ada
+
+### state transition: deactivate person ada (Active -> Inactive)
+### Activatable is deterministic, so the body only needs the target state.
+PUT {{base}}/persons/ada/_state
+content-type: application/json
+
+{ "state": "Inactive" }
+
+### state transition: re-activate person ada (Inactive -> Active)
+PUT {{base}}/persons/ada/_state
+content-type: application/json
+
+{ "state": "Active" }
+
+### property update: PATCH only touches properties and never changes state
+PATCH {{base}}/persons/ada
+content-type: application/json
+
+{ "email": "ada.lovelace@example.com" }
+
+##############
+## employment
 
 ### get a list of available relationships Employment
 GET {{base}}/employments
@@ -17,22 +45,30 @@ GET {{base}}/employments
 ### Relationship Employment
 GET {{base}}/employments/employment-1?expand=employee,employer
 
-### 
-GET {{base}}/persons/person-ada
+###
+GET {{base}}/persons/ada/employments
 
-### 
-GET {{base}}/persons/person-ada/employments
+### state transition: deactivate employment-1 (Active -> Inactive)
+PUT {{base}}/employments/employment-1/_state
+content-type: application/json
 
-### 
-GET {{base}}/persons/person-alan/employments
+{ "state": "Inactive" }
+
+### state transition: re-activate employment-1 (Inactive -> Active)
+PUT {{base}}/employments/employment-1/_state
+content-type: application/json
+
+{ "state": "Active" }
+
+##############
+## create new person
 
 
-### create a new person
 POST {{base}}/persons
 content-type: application/json
 
 {
-  "key": "person-chris",
+  "key": "chris",
   "name": "Christof Sprenger",
   "email": "chriss@example.com",
   "state": "Active"
@@ -40,25 +76,24 @@ content-type: application/json
 
 
 ### currently not implemented creation of relationship via participant
-POST {{base}}/persons/person-chris/employments
+POST {{base}}/persons/chris/employments
 content-type: application/json
 
 {
     "key": "employment-2",
-    "employerKey": "person-alan",
+    "employerKey": "alan",
     "title": "Research Engineer",
     "state": "Active"
 }
 
-### currently not implemented: creation of relationship via participant
+### creation of relationship via participant
 POST {{base}}/employments
 content-type: application/json
 
 {
     "key": "employment-2",
-    "employeeKey": "person-chris",
-    "employerKey": "person-alan",
+    "employeeKey": "chris",
+    "employerKey": "alan",
     "title": "Research Engineer",
     "state": "Active"
 }
-

@@ -106,12 +106,12 @@ prop-opt         =  "required"
                  /  "immutable"           ; alias for writeonce
                  /  "nullable"
                  /  visibility-opt
-                 /  phase-visibility
+                 /  state-visibility
 
-; Property visible only in given phases
-phase-visibility =  "visible-in" ":" "[" TypeName *( "," TypeName ) "]"
+; Property visible only in given states
+state-visibility =  "visible-in" ":" "[" TypeName *( "," TypeName ) "]"
 
-; Property writable only in given phases
+; Property writable only in given states
 visibility-opt   =  "writable-in" ":" "[" TypeName *( "," TypeName ) "]"
 
 
@@ -138,11 +138,11 @@ state-decl       =  [annotation] TypeName [ string-lit ]  ; optional doc label
 transitions-block=  "transitions" "{" *( ws / comment / transition-decl ) "}"
 
 transition-decl  =  [annotation] name ":"
-                    phase-set "->" TypeName
+                    state-set "->" TypeName
                     [ "[" transition-opts "]" ]
 
-; Source may be a single phase or a set
-phase-set        =  TypeName / "(" TypeName 1*( "|" TypeName ) ")"
+; Source may be a single state or a set
+state-set        =  TypeName / "(" TypeName 1*( "|" TypeName ) ")"
 
 transition-opts  =  transition-opt *( "," transition-opt )
 transition-opt   =  "guard" ":" guard-expr
@@ -189,7 +189,7 @@ archetype-decl   =  [annotation] "archetype" TypeName
                     "{" inline-lifecycle "}"
 
 ; Archetypes use the same inline-lifecycle syntax as entities/relationships.
-; They may additionally declare which phases are 'open' for composition.
+; They may additionally declare which states are 'open' for composition.
 
 
 ; 4.10 Role Declaration

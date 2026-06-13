@@ -181,8 +181,8 @@ public class EidosMapBuilderTests
 
         var plain = builder.BuildPlainMetadataDocument();
 
-        Assert.Contains("PUT /persons/{key}/_state [PutState | body: { \"state\": \"<TargetState>\" }]", plain, StringComparison.Ordinal);
-        Assert.Contains("PATCH /persons/{key} [PatchProperties | body: { ...properties }]", plain, StringComparison.Ordinal);
+        Assert.Contains("PUT {{baseUrl}}/persons/{key}/_state body: PutState = { \"state\": \"<TargetState>\", \"transition\"?: \"<Transition>\" }", plain, StringComparison.Ordinal);
+        Assert.Contains("PATCH {{baseUrl}}/persons/{key} body: PatchProperties = { ...properties }", plain, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -281,8 +281,8 @@ public class EidosMapBuilderTests
                             ["employee"] = "person-1",
                             ["employer"] = "person-2"
                         }),
-                        key => new Dictionary<string, object?> { ["key"] = key, ["name"] = key + "-name" },
-                        key => new Dictionary<string, object?> { ["key"] = key, ["name"] = key + "-name" })
+                        key => Task.FromResult<object?>(new Dictionary<string, object?> { ["key"] = key, ["name"] = key + "-name" }),
+                        key => Task.FromResult<object?>(new Dictionary<string, object?> { ["key"] = key, ["name"] = key + "-name" }))
                     .Transition(EmploymentTransition)
                     .Delete(EmploymentDelete)
                     .Create(EmploymentPost));
