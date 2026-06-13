@@ -1,0 +1,16 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# .NET
+*.user
+project.lock.json
+.vs/
+
+# SQLite runtime artifacts
+*.db
+*.db-shm
+*.db-wal
+
+# macOS
+.DS_Store

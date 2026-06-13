@@ -1,0 +1,219 @@
+; Extracted from Eidos-spec-v0.1.md (Section 4: Grammar)
+
+; 4.1 Lexical Rules
+; -- character classes
+ALPHA       =  %x41-5A / %x61-7A        ; A-Z / a-z
+DIGIT       =  %x30-39                  ; 0-9
+UNDERSCORE  =  %x5F                     ; _
+HYPHEN      =  %x2D                     ; -
+
+; -- identifiers
+; TypeName: PascalCase, starts with uppercase
+TypeName    =  ALPHA *( ALPHA / DIGIT )  ; first char uppercase by convention
+
+; name: camelCase or snake_case identifier
+name        =  ( ALPHA / UNDERSCORE )
+               *( ALPHA / DIGIT / UNDERSCORE / HYPHEN )
+
+; -- literals
+string-lit  =  DQUOTE *( %x20-21 / %x23-7E ) DQUOTE
+int-lit     =  1*DIGIT
+
+; -- comments
+comment      =  line-comment / block-comment
+line-comment =  "//" *( %x09 / %x20-7E ) ( CRLF / LF )
+block-comment=  "/*" *( %x09 / %x0A / %x0D / %x20-7E ) "*/"
+
+
+; 4.2 Top-level Document
+document    =  *( ws / comment / top-decl )
+
+top-decl    =  entity-decl
+            /  relationship-decl
+            /  mixin-decl
+            /  archetype-decl
+
+ws          =  1*( SP / HTAB / CRLF / LF )
+
+
+; 4.3 Entity Declaration
+entity-decl   =  [annotation] "entity" TypeName
+               [ "with" mixin-list ]
+               "{" entity-body "}"
+
+mixin-list  =  TypeName *( "," TypeName )
+
+entity-body   =  *( ws / comment / entity-member )
+
+entity-member =  doc-comment
+            /  properties-block
+            /  lifecycle-clause
+            /  url-hint
+
+; Optional designer hint to override generated URL path segment
+url-hint    =  "url" ":" string-lit
+
+
+; 4.4 Relationship Declaration
+relationship-decl =  [annotation] "relationship" TypeName
+                "between" participant-list
+                "{" relationship-body "}"
+
+participant-list =  participant "," participant *( "," participant )
+
+participant  =  name ":" TypeName
+                [ "[" participant-opts "]" ]
+
+participant-opts =  participant-opt *( "," participant-opt )
+participant-opt  =  "role" ":" TypeName
+                 /  "multiplicity" ":" multiplicity
+
+multiplicity =  "one" / "many" / "one-or-more" / "zero-or-one"
+
+relationship-body =  *( ws / comment / relationship-member )
+
+relationship-member = doc-comment
+              /  properties-block
+              /  lifecycle-clause
+              /  coupling-block
+              /  role-decl
+              /  url-hint
+
+
+; 4.5 Properties Block
+properties-block =  "properties" "{" *( ws / comment / property-decl ) "}"
+
+property-decl    =  [annotation] name ":" type-expr
+                    [ "[" prop-opts "]" ]
+
+type-expr        =  scalar-type
+                 /  "ref" TypeName          ; reference to another Entity
+                 /  "list" "<" type-expr ">"
+                 /  "optional" "<" type-expr ">"
+                 /  "enum" "[" enum-values "]"
+
+scalar-type      =  "String" / "Integer" / "Number" / "Boolean"
+                 /  "Date" / "DateTime" / "Time"
+                 /  "Money" / "Email" / "Url" / "Uuid"
+
+enum-values      =  name *( "," name )
+
+prop-opts        =  prop-opt *( "," prop-opt )
+prop-opt         =  "required"
+                 /  "unique"
+                 /  "readonly"
+                 /  "writeonce"
+                 /  "immutable"           ; alias for writeonce
+                 /  "nullable"
+                 /  visibility-opt
+                 /  phase-visibility
+
+; Property visible only in given phases
+phase-visibility =  "visible-in" ":" "[" TypeName *( "," TypeName ) "]"
+
+; Property writable only in given phases
+visibility-opt   =  "writable-in" ":" "[" TypeName *( "," TypeName ) "]"
+
+
+; 4.6 Lifecycle Clause
+; An endurant uses either a named archetype OR an inline state machine, not both.
+
+lifecycle-clause =  "lifecycle" ":" archetype-ref
+                 /  "lifecycle" "{" inline-lifecycle "}"
+
+archetype-ref    =  TypeName *( "+" TypeName )    ; composition (see 5.3 TBD)
+
+inline-lifecycle =  *( ws / comment / lifecycle-member )
+
+lifecycle-member =  states-block
+                 /  transitions-block
+                 /  initial-clause
+
+initial-clause   =  "initial" ":" TypeName
+
+states-block     =  "states" "{" *( ws / comment / state-decl ) "}"
+
+state-decl       =  [annotation] TypeName [ string-lit ]  ; optional doc label
+
+transitions-block=  "transitions" "{" *( ws / comment / transition-decl ) "}"
+
+transition-decl  =  [annotation] name ":"
+                    phase-set "->" TypeName
+                    [ "[" transition-opts "]" ]
+
+; Source may be a single phase or a set
+phase-set        =  TypeName / "(" TypeName 1*( "|" TypeName ) ")"
+
+transition-opts  =  transition-opt *( "," transition-opt )
+transition-opt   =  "guard" ":" guard-expr
+                 /  "emits" ":" TypeName     ; future: event name
+
+guard-expr       =  guard-atom *( ( "&&" / "||" ) guard-atom )
+guard-atom       =  name                    ; predicate name (resolved externally)
+                 /  participant-state-guard
+                 /  "!" guard-atom
+                 /  "(" guard-expr ")"
+
+participant-state-guard = name ".state" "in" "[" TypeName *( "," TypeName ) "]"
+
+
+; 4.7 Coupling Block
+coupling-block   =  "coupling" "{" *( ws / comment / coupling-rule ) "}"
+
+coupling-rule    =  "on" name ".state" "->" TypeName ":" transition-call
+
+; The transition to invoke on this Relationship when the coupling fires
+transition-call  =  name [ "(" coupling-args ")" ]
+
+coupling-args    =  coupling-arg *( "," coupling-arg )
+coupling-arg     =  name ":" ( name / string-lit )
+
+; Examples:
+;   on employer.state -> Dissolved : terminate
+;   on employee.state -> Deceased  : terminate( reason: natural-end )
+
+
+; 4.8 Mixin Declaration
+mixin-decl       =  [annotation] "mixin" TypeName "{" mixin-body "}"
+
+mixin-body       =  *( ws / comment / mixin-member )
+
+mixin-member     =  doc-comment
+                 /  properties-block
+                 /  lifecycle-fragment   ; partial state machine -- TBD 7.9
+
+
+; 4.9 Archetype Declaration
+archetype-decl   =  [annotation] "archetype" TypeName
+                    [ "composable" ]       ; opt-in to + composition
+                    "{" inline-lifecycle "}"
+
+; Archetypes use the same inline-lifecycle syntax as entities/relationships.
+; They may additionally declare which phases are 'open' for composition.
+
+
+; 4.10 Role Declaration
+role-decl        =  "role" TypeName "{" role-body "}"
+
+role-body        =  *( ws / comment / role-member )
+
+role-member      =  doc-comment
+                 /  properties-block
+                 /  guard-constraint
+
+; A constraint that must hold for the Entity to be eligible to play this Role
+guard-constraint =  "requires" ":" guard-expr
+
+
+; 4.11 Annotations and Doc Comments
+annotation       =  "@" name [ "(" annotation-args ")" ]
+
+annotation-args  =  annotation-arg *( "," annotation-arg )
+annotation-arg   =  name ":" ( string-lit / name / int-lit )
+
+doc-comment      =  '"""' *( %x09 / %x0A / %x0D / %x20-7E ) '"""'
+
+; Built-in annotations:
+;   @deprecated(since: "v2", use: "NewType")
+;   @since(version: "1.3")
+;   @tag(name: "billing")     maps to OpenAPI tags

@@ -1,0 +1,64 @@
+
+@base = http://localhost:5135
+
+### get available endpoints
+GET {{base}}/
+
+### get a list of available endpoints as plain text
+GET {{base}}/?format=plain
+
+### get a list of available entities of type person
+GET {{base}}/persons
+
+
+### get a list of available relationships Employment
+GET {{base}}/employments
+
+### Relationship Employment
+GET {{base}}/employments/employment-1?expand=employee,employer
+
+### 
+GET {{base}}/persons/person-ada
+
+### 
+GET {{base}}/persons/person-ada/employments
+
+### 
+GET {{base}}/persons/person-alan/employments
+
+
+### create a new person
+POST {{base}}/persons
+content-type: application/json
+
+{
+  "key": "person-chris",
+  "name": "Christof Sprenger",
+  "email": "chriss@example.com",
+  "state": "Active"
+}
+
+
+### currently not implemented creation of relationship via participant
+POST {{base}}/persons/person-chris/employments
+content-type: application/json
+
+{
+    "key": "employment-2",
+    "employerKey": "person-alan",
+    "title": "Research Engineer",
+    "state": "Active"
+}
+
+### currently not implemented: creation of relationship via participant
+POST {{base}}/employments
+content-type: application/json
+
+{
+    "key": "employment-2",
+    "employeeKey": "person-chris",
+    "employerKey": "person-alan",
+    "title": "Research Engineer",
+    "state": "Active"
+}
+
