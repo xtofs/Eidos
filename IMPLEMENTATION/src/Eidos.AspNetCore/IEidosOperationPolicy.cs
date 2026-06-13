@@ -16,7 +16,7 @@ public sealed class DefaultEidosOperationPolicy : IEidosOperationPolicy
         {
             EidosOperationType.List,
             EidosOperationType.Get,
-            EidosOperationType.Post
+            EidosOperationType.Create
         };
 
     private static readonly IReadOnlySet<EidosOperationType> FullOperations =
@@ -24,7 +24,7 @@ public sealed class DefaultEidosOperationPolicy : IEidosOperationPolicy
         {
             EidosOperationType.List,
             EidosOperationType.Get,
-            EidosOperationType.Post,
+            EidosOperationType.Create,
             EidosOperationType.PutState,
             EidosOperationType.Delete
         };

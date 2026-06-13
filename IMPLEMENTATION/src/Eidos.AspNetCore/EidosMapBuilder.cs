@@ -178,7 +178,7 @@ public sealed class EidosMapBuilder
         return string
             .Join("\n\n", routes
             .SelectMany(r => r.Methods
-            .Select(m => $"### {r.ResourceType} {r.ResourceName}\n{m} {{{{baseUrl}}}}{r.Path} body: {r.Operation} = {BuildOperationHint(r.Operation)}")));
+            .Select(m => $"### {r.Operation} {r.ResourceType} {r.ResourceName}\n{m} {{{{baseUrl}}}}{r.Path} body: {r.Operation} = {BuildOperationHint(r.Operation)}")));
     }
 
     private static string BuildOperationHint(EidosOperationType operation)
@@ -357,8 +357,8 @@ public sealed class EidosEntityRouteBuilder
     {
         var path = CollectionPath();
         _endpoints.MapPost(path, handler);
-        Register(EidosOperationType.Post);
-        RegisterMappedRoute(EidosOperationType.Post, path, "POST");
+        Register(EidosOperationType.Create);
+        RegisterMappedRoute(EidosOperationType.Create, path, "POST");
         return this;
     }
 
@@ -366,8 +366,8 @@ public sealed class EidosEntityRouteBuilder
     {
         var path = CollectionPath();
         _endpoints.MapPost(path, handler);
-        Register(EidosOperationType.Post);
-        RegisterMappedRoute(EidosOperationType.Post, path, "POST");
+        Register(EidosOperationType.Create);
+        RegisterMappedRoute(EidosOperationType.Create, path, "POST");
         return this;
     }
 
@@ -375,8 +375,8 @@ public sealed class EidosEntityRouteBuilder
     {
         var path = CollectionPath();
         _endpoints.MapPost(path, handler);
-        Register(EidosOperationType.Post);
-        RegisterMappedRoute(EidosOperationType.Post, path, "POST");
+        Register(EidosOperationType.Create);
+        RegisterMappedRoute(EidosOperationType.Create, path, "POST");
         return this;
     }
 
@@ -384,8 +384,8 @@ public sealed class EidosEntityRouteBuilder
     {
         var path = CollectionPath();
         _endpoints.MapPost(path, handler);
-        Register(EidosOperationType.Post);
-        RegisterMappedRoute(EidosOperationType.Post, path, "POST");
+        Register(EidosOperationType.Create);
+        RegisterMappedRoute(EidosOperationType.Create, path, "POST");
         return this;
     }
 

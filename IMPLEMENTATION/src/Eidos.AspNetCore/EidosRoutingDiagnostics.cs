@@ -18,7 +18,7 @@ public enum EidosOperationType
 {
     List,
     Get,
-    Post,
+    Create,
     PutState,
     PatchProperties,
     Delete

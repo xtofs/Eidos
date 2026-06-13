@@ -103,3 +103,13 @@ content-type: application/json
     "title": "Research Engineer",
     "state": "Active"
 }
+
+
+###
+GET {{base}}/persons/chris
+
+### PatchProperties Entity Person
+PATCH {{base}}/persons/chris 
+content-type: application/json-patch+json
+
+[{ "op": "replace", "path": "/email", "value": "xtof@example.com" }]
