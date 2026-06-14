@@ -59,7 +59,7 @@ public static class EidosEndpointRouteBuilderExtensions
         var options = new EidosOpenApiRouteOptions();
         configure?.Invoke(options);
 
-        var openApiDocument = OpenApiDocumentFactory.Create(OpenApiModelGenerator.Generate(document, info));
+        var openApiDocument = OpenApiDocumentGenerator.Generate(document, info);
         builder.Services.AddSingleton(openApiDocument);
         builder.Services.AddSingleton<ISwaggerProvider, EidosOpenApiSwaggerProvider>();
         builder.Services.AddSingleton(options);

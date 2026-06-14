@@ -153,15 +153,12 @@ public sealed class EidosMapBuilder
         return this;
     }
 
-    /// <summary>
-    // /// Builds the provider-neutral OpenAPI model (§5.2) for this document. The schema substance comes from
-    // /// the parsed AST, not from the runtime route registrations.
-    // /// </summary>
-    // public OpenApiModel BuildOpenApiModel(ApiInfo info)
-    // {
-    //     ArgumentNullException.ThrowIfNull(info);
-    //     return OpenApiModelGenerator.Generate(_document, info);
-    // }
+    /// <summary>Builds the generated OpenAPI document (§5.2) for this schema.</summary>
+    public OpenApiDocument BuildOpenApiDocument(ApiInfo info)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        return OpenApiDocumentGenerator.Generate(_document, info);
+    }
 
     /// <summary>Serves the generated OpenAPI 3.0 document as JSON at <paramref name="pattern"/>.</summary>
     public EidosMapBuilder MapOpenApiEndpoint(string pattern = "/openapi.json", ApiInfo? info = null)
@@ -171,7 +168,7 @@ public sealed class EidosMapBuilder
 
         _endpoints.MapGet(pattern, () =>
         {
-            var document = OpenApiDocumentFactory.Create(OpenApiModelGenerator.Generate(_document, apiInfo));
+            var document = OpenApiDocumentGenerator.Generate(_document, apiInfo);
             using var stringWriter = new StringWriter();
             document.SerializeAsV3(new OpenApiJsonWriter(stringWriter));
             return Results.Text(stringWriter.ToString(), "application/json");
