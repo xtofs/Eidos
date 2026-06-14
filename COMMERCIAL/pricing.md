@@ -1,11 +1,11 @@
-# EIDOS Commercial Licensing — Pricing
+# Eidos Commercial Licensing — Pricing
 
 > Placeholder pricing model. Final terms are agreed upon in the individual
 > commercial licensing agreement.
 
 ## Free Use
 
-EIDOS is **free for personal and academic use** under the open-source
+Eidos is **free for personal and academic use** under the open-source
 licenses:
 
 - Specification: CC-BY-SA 4.0
@@ -33,7 +33,7 @@ tiers:
 ## How to Purchase
 
 1. Choose the tier that fits your organization.
-2. Contact the EIDOS maintainers with your organization details and the
+2. Contact the Eidos maintainers with your organization details and the
    desired tier.
 3. Receive and sign the commercial licensing agreement.
 4. Optionally enroll in the

@@ -1,6 +1,6 @@
-# Contributing to EIDOS
+# Contributing to Eidos
 
-Thank you for your interest in contributing to EIDOS. Please read this
+Thank you for your interest in contributing to Eidos. Please read this
 document before submitting changes.
 
 ## Licensing of Contributions
@@ -17,19 +17,19 @@ submitting a contribution, you agree to the following:
 
 ### Dual Licensing Agreement
 
-The EIDOS project offers the implementation to commercial customers under a
+The Eidos project offers the implementation to commercial customers under a
 separate proprietary license (see
 [COMMERCIAL/LICENSE-COMMERCIAL.txt](COMMERCIAL/LICENSE-COMMERCIAL.txt)).
 To make this possible, **all contributors must agree that their contributions
 may be dual-licensed**: distributed under the applicable open-source license
-(CC-BY-SA 4.0 or AGPL-3.0) _and_ under the EIDOS commercial license.
+(CC-BY-SA 4.0 or AGPL-3.0) _and_ under the Eidos commercial license.
 
 By submitting a pull request, you confirm that:
 
 1. You are the author of the contribution, or have the right to submit it.
-2. You grant the EIDOS project maintainers a perpetual, worldwide,
+2. You grant the Eidos project maintainers a perpetual, worldwide,
    royalty-free right to license your contribution under both the applicable
-   open-source license and the EIDOS commercial license.
+   open-source license and the Eidos commercial license.
 3. You understand that your contribution remains available to the public
    under the open-source licenses.
 

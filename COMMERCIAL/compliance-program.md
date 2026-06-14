@@ -1,22 +1,22 @@
-# EIDOS Compliance Program
+# Eidos Compliance Program
 
 This document describes how organizations can certify that their products
-conform to the EIDOS specification.
+conform to the Eidos specification.
 
 ## Compliance Certification
 
 Organizations holding a commercial license can certify compliance of their
 implementations as follows:
 
-1. **Self-assessment** — run the official EIDOS conformance test suite
+1. **Self-assessment** — run the official Eidos conformance test suite
    against your implementation and record the results.
 2. **Submission** — submit the test results, along with the implementation
-   version and the targeted specification version, to the EIDOS maintainers.
+   version and the targeted specification version, to the Eidos maintainers.
 3. **Review** — the maintainers review the submission and may request
    clarifications or additional test runs.
 4. **Certification** — upon successful review, the organization receives a
    compliance certificate for the specific implementation version and
-   specification version, and may use the "EIDOS Compliant" designation for
+   specification version, and may use the "Eidos Compliant" designation for
    that version.
 
 Certification is version-specific: a new certification is required for each
@@ -24,7 +24,7 @@ major implementation release or when targeting a new specification version.
 
 ## Versioning
 
-The EIDOS specification follows semantic versioning:
+The Eidos specification follows semantic versioning:
 
 - **Major versions** introduce breaking changes to syntax or semantics.
   Certifications do not carry over across major versions.
@@ -49,4 +49,4 @@ Conformance test suites are provided as follows:
 - Test suites are distributed per specification version; licensees are
   notified when new suite versions are published.
 
-For questions about the compliance program, contact the EIDOS maintainers.
+For questions about the compliance program, contact the Eidos maintainers.

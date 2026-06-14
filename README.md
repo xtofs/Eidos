@@ -1,6 +1,6 @@
-# EIDOS
+# Eidos
 
-EIDOS is an open specification and reference implementation for describing,
+Eidos is an open specification and reference implementation for describing,
 validating, and exchanging structured semantic data. This repository contains
 both the formal specification and a .NET reference implementation.
 
@@ -8,7 +8,7 @@ both the formal specification and a .NET reference implementation.
 
 | Directory                          | Contents                                                                 | License                                          |
 | ---------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------ |
-| [SPECIFICATION/](SPECIFICATION/)   | The EIDOS specification, semantic rules, examples, and conformance tests | [CC-BY-SA 4.0](SPECIFICATION/LICENSE-SPEC.txt)   |
+| [SPECIFICATION/](SPECIFICATION/)   | The Eidos specification, semantic rules, examples, and conformance tests | [CC-BY-SA 4.0](SPECIFICATION/LICENSE-SPEC.txt)   |
 | [IMPLEMENTATION/](IMPLEMENTATION/) | The .NET reference implementation and its tests                          | [AGPL-3.0](IMPLEMENTATION/LICENSE-IMPL.txt)      |
 | [COMMERCIAL/](COMMERCIAL/)         | Commercial licensing terms, compliance program, and pricing              | [Proprietary](COMMERCIAL/LICENSE-COMMERCIAL.txt) |
 
@@ -32,7 +32,7 @@ Each component of this repository has its own license:
 
 ## Commercial Licensing
 
-If your organization wants to embed the EIDOS implementation in a proprietary
+If your organization wants to embed the Eidos implementation in a proprietary
 product or service without the AGPL-3.0 source-disclosure obligations, a
 commercial license is available:
 

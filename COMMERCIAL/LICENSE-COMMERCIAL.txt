@@ -1,57 +1,57 @@
-EIDOS COMMERCIAL LICENSE AGREEMENT
+Eidos COMMERCIAL LICENSE AGREEMENT
 ===================================
 
 IMPORTANT: This license applies ONLY to commercial customers who have
-entered into a valid commercial licensing agreement with the EIDOS
+entered into a valid commercial licensing agreement with the Eidos
 project maintainers ("Licensor"). If you have not obtained a commercial
-license, your use of the EIDOS implementation is governed by the GNU
+license, your use of the Eidos implementation is governed by the GNU
 Affero General Public License v3.0 (see IMPLEMENTATION/LICENSE-IMPL.txt).
 
 1. GRANT OF COMMERCIAL RIGHTS
    Subject to the terms of this Agreement and payment of the applicable
    license fees, Licensor grants the licensed organization ("Licensee")
    a non-exclusive, non-transferable, worldwide license to:
-   a) use the EIDOS implementation in proprietary products and services;
-   b) modify the EIDOS implementation for internal use and for
+   a) use the Eidos implementation in proprietary products and services;
+   b) modify the Eidos implementation for internal use and for
       incorporation into Licensee's products;
-   c) distribute the EIDOS implementation solely as an integrated
+   c) distribute the Eidos implementation solely as an integrated
       component of Licensee's products, without the obligation to
       disclose source code that would otherwise apply under AGPL-3.0.
 
 2. RESTRICTIONS ON REDISTRIBUTION
    Licensee shall NOT:
-   a) redistribute the EIDOS implementation as a standalone product;
-   b) distribute the EIDOS implementation in any manner that competes
-      with Licensor's licensing of the EIDOS implementation;
+   a) redistribute the Eidos implementation as a standalone product;
+   b) distribute the Eidos implementation in any manner that competes
+      with Licensor's licensing of the Eidos implementation;
    c) remove or alter any copyright, trademark, or attribution notices.
 
 3. NO SUBLICENSING
-   Licensee may not sublicense, rent, lease, or lend the EIDOS
+   Licensee may not sublicense, rent, lease, or lend the Eidos
    implementation to any third party without the prior written
    permission of Licensor. Distribution as an integrated component of
    Licensee's products under Section 1(c) is not considered
    sublicensing.
 
 4. NO WARRANTY
-   THE EIDOS IMPLEMENTATION IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+   THE Eidos IMPLEMENTATION IS PROVIDED "AS IS", WITHOUT WARRANTY OF
    ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
    WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
    NON-INFRINGEMENT. IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY
    CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
    CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION
-   WITH THE EIDOS IMPLEMENTATION OR THE USE OR OTHER DEALINGS IN THE
-   EIDOS IMPLEMENTATION.
+   WITH THE Eidos IMPLEMENTATION OR THE USE OR OTHER DEALINGS IN THE
+   Eidos IMPLEMENTATION.
 
 5. SCOPE
-   This license covers the EIDOS implementation only. The EIDOS
+   This license covers the Eidos implementation only. The Eidos
    specification remains licensed under CC-BY-SA 4.0 (see
    SPECIFICATION/LICENSE-SPEC.txt) regardless of commercial status.
 
 6. TERMINATION
    This license terminates automatically if Licensee breaches any of
    its terms. Upon termination, Licensee must cease all use and
-   distribution of the EIDOS implementation under this Agreement;
+   distribution of the Eidos implementation under this Agreement;
    continued use is then governed solely by the AGPL-3.0.
 
 For commercial licensing inquiries, see COMMERCIAL/pricing.md or
-contact the EIDOS project maintainers.
+contact the Eidos project maintainers.
