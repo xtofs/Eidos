@@ -40,19 +40,35 @@ public static class OpenApiDocumentGenerator
         var entities = document.Declarations.OfType<EntityDeclarationSyntax>().ToList();
         var relationships = document.Declarations.OfType<RelationshipDeclarationSyntax>().ToList();
 
+        // Resolve each type's collection segment once, honoring a declaration's `url:` hint over the default.
+        var segmentByType = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entity in entities)
+        {
+            segmentByType[entity.Name] = UrlHint(entity.Members.OfType<EntityUrlHintMemberSyntax>().Select(m => m.UrlHint))
+                ?? ApiNaming.CollectionSegment(entity.Name);
+        }
+
+        foreach (var relationship in relationships)
+        {
+            segmentByType[relationship.Name] = UrlHint(relationship.Members.OfType<RelationshipUrlHintMemberSyntax>().Select(m => m.UrlHint))
+                ?? ApiNaming.CollectionSegment(relationship.Name);
+        }
+
+        string Segment(string typeName) => segmentByType.TryGetValue(typeName, out var s) ? s : ApiNaming.CollectionSegment(typeName);
+
         foreach (var entity in entities)
         {
             var lifecycle = AnalyzeLifecycle(EntityLifecycle(entity), archetypes);
             doc.Components.Schemas[entity.Name] = BuildObjectSchema(EntityProperties(entity), [], lifecycle.HasLifecycle);
-            AddResourcePaths(doc, entity.Name, lifecycle, expandParticipants: null);
+            AddResourcePaths(doc, entity.Name, Segment(entity.Name), lifecycle, expandParticipants: null);
         }
 
         foreach (var relationship in relationships)
         {
             var lifecycle = AnalyzeLifecycle(RelationshipLifecycle(relationship), archetypes);
             doc.Components.Schemas[relationship.Name] = BuildObjectSchema(RelationshipProperties(relationship), relationship.Participants, lifecycle.HasLifecycle);
-            AddResourcePaths(doc, relationship.Name, lifecycle, relationship.Participants.Select(p => p.Name).ToList());
-            AddProjectionPaths(doc, relationship);
+            AddResourcePaths(doc, relationship.Name, Segment(relationship.Name), lifecycle, relationship.Participants.Select(p => p.Name).ToList());
+            AddProjectionPaths(doc, relationship, Segment);
         }
 
         if (entities.Count > 0 || relationships.Count > 0)
@@ -65,9 +81,8 @@ public static class OpenApiDocumentGenerator
 
     // ── Paths ───────────────────────────────────────────────────────────────
 
-    private static void AddResourcePaths(OpenApiDocument doc, string typeName, LifecycleInfo lifecycle, IReadOnlyList<string>? expandParticipants)
+    private static void AddResourcePaths(OpenApiDocument doc, string typeName, string coll, LifecycleInfo lifecycle, IReadOnlyList<string>? expandParticipants)
     {
-        var coll = ApiNaming.CollectionSegment(typeName);
         var item = $"/{coll}/{{{ApiNaming.KeyParameter}}}";
 
         AddPath(doc, $"/{coll}", pathItem =>
@@ -89,14 +104,14 @@ public static class OpenApiDocumentGenerator
         }
     }
 
-    private static void AddProjectionPaths(OpenApiDocument doc, RelationshipDeclarationSyntax relationship)
+    private static void AddProjectionPaths(OpenApiDocument doc, RelationshipDeclarationSyntax relationship, Func<string, string> segment)
     {
-        var coll = ApiNaming.CollectionSegment(relationship.Name);
+        var coll = segment(relationship.Name);
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var participant in relationship.Participants)
         {
-            var template = $"/{ApiNaming.CollectionSegment(participant.TypeName)}/{{{ApiNaming.KeyParameter}}}/{coll}";
+            var template = $"/{segment(participant.TypeName)}/{{{ApiNaming.KeyParameter}}}/{coll}";
             if (!seen.Add(template))
             {
                 continue;
@@ -447,6 +462,9 @@ public static class OpenApiDocumentGenerator
 
     private static IEnumerable<PropertyDeclarationSyntax> RelationshipProperties(RelationshipDeclarationSyntax relationship) =>
         relationship.Members.OfType<RelationshipPropertiesMemberSyntax>().SelectMany(m => m.Properties.Properties);
+
+    private static string? UrlHint(IEnumerable<UrlHintSyntax> hints) =>
+        hints.Select(h => h.Value).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
 
     private static string Capitalize(string value) =>
         string.IsNullOrEmpty(value) ? value : char.ToUpperInvariant(value[0]) + value[1..];

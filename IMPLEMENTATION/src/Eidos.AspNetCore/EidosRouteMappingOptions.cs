@@ -1,4 +1,4 @@
-using System.Globalization;
+using Eidos.Core.OpenApi;
 
 namespace Eidos.AspNetCore;
 
@@ -8,25 +8,11 @@ public sealed class EidosRouteMappingOptions
 
     public Action<EidosRouteDiagnostic>? OnDiagnostic { get; set; }
 
-    public Func<string, string> CollectionSegmentStrategy { get; set; } = DefaultCollectionSegmentName;
+    /// <summary>
+    /// Maps a type/relationship name to its collection segment. Defaults to <see cref="ApiNaming.CollectionSegment"/>
+    /// (the same regular pluralizer the OpenAPI generator uses); a declaration's <c>url:</c> hint overrides it.
+    /// </summary>
+    public Func<string, string> CollectionSegmentStrategy { get; set; } = ApiNaming.CollectionSegment;
 
-    public Func<string, string> ItemRouteParameterStrategy { get; set; } = _ => "key";
-
-    private static string DefaultCollectionSegmentName(string resourceName)
-    {
-        var lower = resourceName.ToLowerInvariant();
-
-        if (lower.EndsWith("y", true, CultureInfo.InvariantCulture) && lower.Length > 1)
-        {
-            return lower[..^1] + "ies";
-        }
-
-        if (lower.EndsWith("s", true, CultureInfo.InvariantCulture))
-        {
-            return lower;
-        }
-
-        return lower + "s";
-    }
+    public Func<string, string> ItemRouteParameterStrategy { get; set; } = _ => ApiNaming.KeyParameter;
 }
-

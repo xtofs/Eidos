@@ -46,6 +46,28 @@ public sealed class EidosMapBuilder
         _relationships = document.Declarations
             .OfType<RelationshipDeclarationSyntax>()
             .ToDictionary(d => d.Name, StringComparer.Ordinal);
+
+        // A declaration's `url:` hint overrides the default collection segment for its routes
+        // (own collection, item, and participant projections all resolve through this strategy).
+        var configuredSegment = _options.CollectionSegmentStrategy;
+        _options.CollectionSegmentStrategy = typeName => UrlHintSegment(typeName) ?? configuredSegment(typeName);
+    }
+
+    private string? UrlHintSegment(string typeName)
+    {
+        if (_entities.TryGetValue(typeName, out var entity)
+            && entity.Members.OfType<EntityUrlHintMemberSyntax>().FirstOrDefault()?.UrlHint.Value is { Length: > 0 } entityHint)
+        {
+            return entityHint;
+        }
+
+        if (_relationships.TryGetValue(typeName, out var relationship)
+            && relationship.Members.OfType<RelationshipUrlHintMemberSyntax>().FirstOrDefault()?.UrlHint.Value is { Length: > 0 } relationshipHint)
+        {
+            return relationshipHint;
+        }
+
+        return null;
     }
 
     public EidosMapBuilder Entity(string name, Action<EidosEntityRouteBuilder> configure)

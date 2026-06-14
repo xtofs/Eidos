@@ -112,4 +112,26 @@ public class OpenApiDocumentGeneratorTests
 
         Assert.Contains("/persons/{key}/employments", doc.Paths.Keys);
     }
+
+    [Fact]
+    public void UrlHintOverridesCollectionSegmentEverywhere()
+    {
+        var doc = OpenApiDocumentGenerator.Generate(EidosGrammarParser.Parse("""
+            entity Person {
+              url: "people"
+              lifecycle: Activatable
+            }
+
+            relationship Employment between employee : Person, employer : Person {
+            }
+            """), new ApiInfo("Test", "1.0"));
+
+        // Own routes use the hinted segment...
+        Assert.Contains("/people", doc.Paths.Keys);
+        Assert.Contains("/people/{key}", doc.Paths.Keys);
+        Assert.DoesNotContain("/persons", doc.Paths.Keys);
+
+        // ...and so does the participant projection that anchors on Person.
+        Assert.Contains("/people/{key}/employments", doc.Paths.Keys);
+    }
 }
