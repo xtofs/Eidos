@@ -1,0 +1,32 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: IMPLEMENTATION
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore Eidos.slnx
+
+    - name: Build
+      run: dotnet build Eidos.slnx --no-restore
+
+    - name: Test
+      run: dotnet test Eidos.slnx --no-build --verbosity normal
