@@ -46,7 +46,21 @@ public static class EidosEndpointRouteBuilderExtensions
         return new EidosMapBuilder(endpoints, document, options, operationPolicy ?? new DefaultEidosOperationPolicy());
     }
 
-    public static WebApplicationBuilder AddEidosOpenApiAndReDoc(
+    /// <summary>
+    /// Adds the OpenAPI document generated from the given Eidos document to the DI container, 
+    /// and configures the endpoints for serving the OpenAPI JSON and ReDoc UI based on the given options. 
+    /// The OpenAPI document is generated once at startup and cached in a singleton service. 
+    /// The ReDoc UI is served at <c>/redoc</c> by default, and can be customized 
+    /// via the <c>ReDocPath</c> property of <see cref="EidosOpenApiRouteOptions"/>. 
+    /// The OpenAPI JSON is served at <c>/swagger/v1/swagger.json</c> by default, and can be customized 
+    /// via the <c>OpenApiPath</c> property of <see cref="EidosOpenApiRouteOptions"/>.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="document"></param>
+    /// <param name="info"></param>
+    /// <param name="configure"></param>
+    /// <returns></returns>
+    public static WebApplicationBuilder AddEidosOpenApi(
         this WebApplicationBuilder builder,
         EidosDocumentSyntax document,
         ApiInfo info,

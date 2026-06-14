@@ -9,12 +9,16 @@ namespace Eidos.Sample.HumanResources;
 public static class HumanResourcesServiceCollectionExtensions
 {
 
-    public static WebApplicationBuilder UseHumanResourcesRepository(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddHumanResourcesService(this WebApplicationBuilder builder)
     {
-        var configuration = builder.Configuration;
-        var provider = configuration["Hr:Provider"];
+        AddHumanResourcesService(builder.Services, builder.Configuration);
+        return builder;
+    }
 
-        var services = builder.Services;
+    public static void AddHumanResourcesService(this IServiceCollection services, IConfiguration configuration)
+    {
+
+        var provider = configuration["Hr:Provider"];
 
         if (string.Equals(provider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -25,8 +29,6 @@ public static class HumanResourcesServiceCollectionExtensions
             var connectionString = configuration.GetConnectionString("HrDb") ?? "Data Source=hr.db";
             services.AddSingleton<IHumanResourcesRepository>(_ => new SqliteHumanResourcesRepository(connectionString));
         }
-
-        return builder;
     }
 
     public static IEndpointRouteBuilder MapHrEndpoints(this WebApplication app)

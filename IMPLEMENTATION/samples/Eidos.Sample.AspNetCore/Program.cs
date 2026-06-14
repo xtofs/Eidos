@@ -16,14 +16,14 @@ public partial class Program
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        builder.AddEidosOpenApiAndReDoc(
+        builder.AddEidosOpenApi(
             HumanResourcesService.ParseSchema(),
             new Eidos.Core.OpenApi.ApiInfo("Eidos HR Sample", "0.1"));
 
         builder.Logging.AddConsole();
 
-        // register the HR repository (SQLite by default; see appsettings 'Hr:Provider' / 'ConnectionStrings:HrDb')
-        builder.UseHumanResourcesRepository();
+        // register the HR service and repository (SQLite by default; see appsettings 'Hr:Provider' / 'ConnectionStrings:HrDb')
+        builder.AddHumanResourcesService();
 
         // ////////////////////////
         // Web Application configuration
@@ -31,12 +31,13 @@ public partial class Program
         var app = builder.Build();
         app.Use(SimpleHttpLoggingMiddleware);
 
+        // add the endpoints for the OpenAPI doc + ReDoc UI based on the Eidos document
         app.MapEidosOpenApiAndReDoc();
 
         // create schema + seed sample data once at startup
         app.Services.GetRequiredService<IHumanResourcesRepository>().Initialize();
 
-        // wire up the HR API
+        // add the endpoints for the HR service based on the Eidos document
         app.MapHrEndpoints();
 
         app.Run();
