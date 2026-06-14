@@ -15,5 +15,5 @@ public class ApiNamingTests
     [InlineData("Dish", "dishes")]          // sh -> es
     [InlineData("Church", "churches")]      // ch -> es
     public void CollectionSegment_PluralizesRegularEnglish(string typeName, string expected)
-        => Assert.Equal(expected, ApiNaming.CollectionSegment(typeName));
+        => Assert.Equal(expected, ApiNaming.CollectionSegmentName(typeName));
 }

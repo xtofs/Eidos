@@ -26,7 +26,7 @@ public partial class Program
         app.UseMiddleware<HttpRequestSummaryMiddleware>();
 
         // add the endpoints for the HR service based on the Eidos document
-        app.MapHrEndpoints();
+        app.MapHumanResourcesEndpoints();
 
         // ////////////////////////
 

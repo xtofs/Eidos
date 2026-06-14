@@ -38,11 +38,10 @@ public static class HumanResourcesServiceCollectionExtensions
         return builder;
     }
 
-    public static IEndpointRouteBuilder MapHrEndpoints(this WebApplication app)
+    public static IEndpointRouteBuilder MapHumanResourcesEndpoints(this WebApplication app)
     {
 
-        // redirect root to ReDoc for a friendlier default landing page
-        // redirect root to the configured documentation UI path
+        // redirect root to the configured documentation UI path for a friendlier default landing page
         var uiPath = app.Services.GetRequiredService<EidosOpenApiRouteOptions>().UiPath;
         app.MapGet("/", () => Results.Redirect(uiPath));
 

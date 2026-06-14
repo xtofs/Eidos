@@ -17,7 +17,7 @@ public static class ApiNaming
     /// Deliberately handles only regular English plurals; irregulars (person → people, child → children)
     /// are the designer's call via the <c>url:</c> hint on the declaration.
     /// </summary>
-    public static string CollectionSegment(string typeName)
+    public static string CollectionSegmentName(string typeName)
     {
         var lower = typeName.ToLowerInvariant();
         if (lower.Length == 0)

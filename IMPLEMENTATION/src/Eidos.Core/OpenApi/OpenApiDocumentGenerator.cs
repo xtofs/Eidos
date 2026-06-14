@@ -45,16 +45,16 @@ public static class OpenApiDocumentGenerator
         foreach (var entity in entities)
         {
             segmentByType[entity.Name] = UrlHint(entity.Members.OfType<EntityUrlHintMemberSyntax>().Select(m => m.UrlHint))
-                ?? ApiNaming.CollectionSegment(entity.Name);
+                ?? ApiNaming.CollectionSegmentName(entity.Name);
         }
 
         foreach (var relationship in relationships)
         {
             segmentByType[relationship.Name] = UrlHint(relationship.Members.OfType<RelationshipUrlHintMemberSyntax>().Select(m => m.UrlHint))
-                ?? ApiNaming.CollectionSegment(relationship.Name);
+                ?? ApiNaming.CollectionSegmentName(relationship.Name);
         }
 
-        string Segment(string typeName) => segmentByType.TryGetValue(typeName, out var s) ? s : ApiNaming.CollectionSegment(typeName);
+        string Segment(string typeName) => segmentByType.TryGetValue(typeName, out var s) ? s : ApiNaming.CollectionSegmentName(typeName);
 
         foreach (var entity in entities)
         {
@@ -437,12 +437,12 @@ public static class OpenApiDocumentGenerator
     private static InlineLifecycleSyntax? ResolveLifecycle(
         LifecycleClauseSyntax clause,
         IReadOnlyDictionary<string, ArchetypeDeclarationSyntax> archetypes) => clause switch
-    {
-        InlineLifecycleClauseSyntax inline => inline.Lifecycle,
-        ArchetypeReferenceLifecycleSyntax reference when reference.Archetypes.Count == 1
-            && archetypes.TryGetValue(reference.Archetypes[0], out var archetype) => archetype.Lifecycle,
-        _ => null
-    };
+        {
+            InlineLifecycleClauseSyntax inline => inline.Lifecycle,
+            ArchetypeReferenceLifecycleSyntax reference when reference.Archetypes.Count == 1
+                && archetypes.TryGetValue(reference.Archetypes[0], out var archetype) => archetype.Lifecycle,
+            _ => null
+        };
 
     private static IEnumerable<string> SourceStates(TransitionDeclarationSyntax transition) => transition.SourceStates switch
     {
