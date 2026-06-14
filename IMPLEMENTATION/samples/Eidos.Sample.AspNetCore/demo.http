@@ -107,7 +107,6 @@ content-type: application/json
     "state": "Active"
 }
 
-
 ###
 GET {{base}}/persons/chris
 

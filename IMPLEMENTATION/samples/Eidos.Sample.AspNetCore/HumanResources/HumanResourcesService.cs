@@ -8,9 +8,9 @@ namespace Eidos.Sample.HumanResources;
 /// Maps the HR Eidos schema onto endpoints and implements the handlers against
 /// <see cref="IHumanResourcesRepository"/>. Storage-agnostic — the repository is injected.
 /// </summary>
-internal sealed class HumanResourcesService(IHumanResourcesRepository repository)
+internal sealed class HumanResourcesService(IHumanResourcesRepository repository, EidosDocumentSyntax schema)
 {
-    private const string SCHEMA = """
+    private const string SchemaText = """
         entity Person {
             lifecycle: Activatable
         }
@@ -21,13 +21,11 @@ internal sealed class HumanResourcesService(IHumanResourcesRepository repository
         }
         """;
 
-    internal static EidosDocumentSyntax ParseSchema() => EidosGrammarParser.Parse(SCHEMA);
+    public static EidosDocumentSyntax ParsedSchema { get; } = EidosGrammarParser.Parse(SchemaText);
 
     public void MapEndpoints(WebApplication app)
     {
-        var schema = ParseSchema();
-
-        app.MapEidos(schema, map =>
+        app.MapEidosSurface(schema, map =>
         {
             map
                 .Entity("Person", p => p
@@ -44,24 +42,12 @@ internal sealed class HumanResourcesService(IHumanResourcesRepository repository
                     .Create<EmploymentCreateRequest>(CreateEmployment)
                     .Transition(TransitionEmployment)
                     .Update<JsonPatchDocument<EmploymentPatch>>(UpdateEmployment)
-                    .Delete(DeleteEmployment))
-                .MapMetadataEndpoint("/");
+                    .Delete(DeleteEmployment));
         }, options =>
         {
-            options.OnDiagnostic = diagnostic =>
-                app.Logger.Log(MapSeverity(diagnostic.Severity),
-                    "Eidos mapping {Severity}: {Message}",
-                    diagnostic.Severity,
-                    diagnostic.Message);
+            options.OnDiagnostic = diagnostic => app.Logger.LogDiagnostic(diagnostic);
         });
     }
-
-    private static LogLevel MapSeverity(EidosRouteDiagnosticSeverity severity) => severity switch
-    {
-        EidosRouteDiagnosticSeverity.Error => LogLevel.Error,
-        EidosRouteDiagnosticSeverity.Warning => LogLevel.Warning,
-        _ => LogLevel.Debug
-    };
 
     private async Task<IResult> ListPeople()
         => Results.Ok(await repository.ListPeopleAsync());

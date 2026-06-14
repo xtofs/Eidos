@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Eidos.AspNetCore.Tests;
@@ -28,7 +29,7 @@ public class EidosMapBuilderTests
             }
             """);
 
-        app.MapEidos(document, builder =>
+        app.MapEidosHandlers(document, builder =>
         {
             builder
                 .Entity("Person", p => p
@@ -46,7 +47,7 @@ public class EidosMapBuilderTests
         });
 
         var endpoints = ((IEndpointRouteBuilder)app).DataSources.SelectMany(s => s.Endpoints).ToList();
-        Assert.Equal(10, endpoints.Count);
+        Assert.Equal(11, endpoints.Count);
 
         var routePatterns = endpoints
             .OfType<RouteEndpoint>()
@@ -73,7 +74,7 @@ public class EidosMapBuilderTests
 
         var diagnostics = new List<EidosRouteDiagnostic>();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => app.MapEidos(
+        var exception = Assert.Throws<InvalidOperationException>(() => app.MapEidosHandlers(
             document,
             builder =>
             {
@@ -104,7 +105,7 @@ public class EidosMapBuilderTests
 
         var diagnostics = new List<EidosRouteDiagnostic>();
 
-        Assert.Throws<InvalidOperationException>(() => app.MapEidos(
+        Assert.Throws<InvalidOperationException>(() => app.MapEidosHandlers(
             document,
             builder =>
             {
@@ -199,7 +200,7 @@ public class EidosMapBuilderTests
             }
             """);
 
-        app.MapEidos(document, builder =>
+        app.MapEidosHandlers(document, builder =>
         {
             builder.Relationship("Employment", e => e
                 .List(EmploymentList)
@@ -284,6 +285,143 @@ public class EidosMapBuilderTests
     }
 
     [Fact]
+    public async Task AddEidosOpenApi_ResolvesSchemaFromDi()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Logging.ClearProviders();
+        builder.Logging.SetMinimumLevel(LogLevel.None);
+        builder.WebHost.UseTestServer();
+
+        var document = EidosGrammarParser.Parse("""
+            entity Person {
+              lifecycle: Activatable
+            }
+            """);
+
+        builder.Services.AddSingleton(document);
+        builder.AddEidosOpenApi("Test API", "1.0", options => options.OpenApiPath = "/openapi.json");
+
+        var app = builder.Build();
+        app.MapEidosOpenApi();
+
+        await app.StartAsync();
+        try
+        {
+            var response = await app.GetTestClient().GetAsync("/openapi.json");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+
+            using var parsed = System.Text.Json.JsonDocument.Parse(json);
+            Assert.StartsWith("3.0", parsed.RootElement.GetProperty("openapi").GetString());
+            Assert.Contains("/persons", json, StringComparison.Ordinal);
+        }
+        finally
+        {
+            await app.StopAsync();
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task MapEidosHandlers_MapsMetadataEndpoint_WhenOpenApiRouteOptionsRegistered()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Logging.ClearProviders();
+        builder.Logging.SetMinimumLevel(LogLevel.None);
+        builder.WebHost.UseTestServer();
+        builder.Services.AddSingleton(new EidosMetadataOptions { MetadataPath = "/routes" });
+
+        var app = builder.Build();
+        var document = EidosGrammarParser.Parse("""
+            entity Person {
+              lifecycle: Activatable
+            }
+            """);
+
+        app.MapEidosHandlers(document, map =>
+        {
+            map.Entity("Person", p => p
+                .List(PersonList)
+                .Get(PersonGet)
+                .Create(PersonPost)
+                .Transition(PersonTransition)
+                .Delete(PersonDelete));
+        });
+
+        await app.StartAsync();
+        try
+        {
+            var response = await app.GetTestClient().GetAsync("/routes");
+            response.EnsureSuccessStatusCode();
+            var payload = await response.Content.ReadAsStringAsync();
+            Assert.Contains("/persons", payload, StringComparison.Ordinal);
+        }
+        finally
+        {
+            await app.StopAsync();
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task MapEidosSurface_MapsHandlersAndConfiguredOpenApiRoutes()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Logging.ClearProviders();
+        builder.Logging.SetMinimumLevel(LogLevel.None);
+        builder.WebHost.UseTestServer();
+
+        var document = EidosGrammarParser.Parse("""
+            entity Person {
+              lifecycle: Activatable
+            }
+            """);
+
+        builder.Services.AddSingleton(document);
+        builder.AddEidosOpenApi("Test API", "1.0", options =>
+        {
+            options.OpenApiPath = "/openapi.json";
+            options.UiPath = "/docs";
+        });
+        builder.AddEidosMetadata(new EidosMetadataOptions { MetadataPath = "/routes" });
+
+        var app = builder.Build();
+
+        app.MapEidosSurface(document, map =>
+        {
+            map.Entity("Person", p => p
+                .List(PersonList)
+                .Get(PersonGet)
+                .Create(PersonPost)
+                .Transition(PersonTransition)
+                .Delete(PersonDelete));
+        });
+
+        await app.StartAsync();
+        try
+        {
+            var client = app.GetTestClient();
+
+            var openApiResponse = await client.GetAsync("/openapi.json");
+            openApiResponse.EnsureSuccessStatusCode();
+
+            var docsResponse = await client.GetAsync("/docs");
+            docsResponse.EnsureSuccessStatusCode();
+
+            var metadataResponse = await client.GetAsync("/routes");
+            metadataResponse.EnsureSuccessStatusCode();
+
+            var metadataPayload = await metadataResponse.Content.ReadAsStringAsync();
+            Assert.Contains("/persons", metadataPayload, StringComparison.Ordinal);
+        }
+        finally
+        {
+            await app.StopAsync();
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
     public async Task GetRelationship_ExpandsParticipants_WhenExpandQueryIsProvided()
     {
         var app = BuildApp();
@@ -300,7 +438,7 @@ public class EidosMapBuilderTests
             }
             """);
 
-        app.MapEidos(document, map =>
+        app.MapEidosHandlers(document, map =>
         {
             map
                 .Entity("Person", p => p

@@ -8,11 +8,11 @@ public sealed class EidosRouteMappingOptions
 
     public Action<EidosRouteDiagnostic>? OnDiagnostic { get; set; }
 
-    public Func<string, string> CollectionSegmentStrategy { get; set; } = DefaultCollectionSegment;
+    public Func<string, string> CollectionSegmentStrategy { get; set; } = DefaultCollectionSegmentName;
 
     public Func<string, string> ItemRouteParameterStrategy { get; set; } = _ => "key";
 
-    private static string DefaultCollectionSegment(string resourceName)
+    private static string DefaultCollectionSegmentName(string resourceName)
     {
         var lower = resourceName.ToLowerInvariant();
 
@@ -29,3 +29,4 @@ public sealed class EidosRouteMappingOptions
         return lower + "s";
     }
 }
+

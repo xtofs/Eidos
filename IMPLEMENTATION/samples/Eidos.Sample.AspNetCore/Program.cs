@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Eidos.AspNetCore;
 using Eidos.Sample.HumanResources;
-using Microsoft.AspNetCore.WebUtilities;
 
 public partial class Program
 {
@@ -16,12 +14,6 @@ public partial class Program
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        builder.AddEidosOpenApi(
-            HumanResourcesService.ParseSchema(),
-            new Eidos.Core.OpenApi.ApiInfo("Eidos HR Sample", "0.1"));
-
-        builder.Logging.AddConsole();
-
         // register the HR service and repository (SQLite by default; see appsettings 'Hr:Provider' / 'ConnectionStrings:HrDb')
         builder.AddHumanResourcesService();
 
@@ -29,38 +21,19 @@ public partial class Program
         // Web Application configuration
 
         var app = builder.Build();
-        app.Use(SimpleHttpLoggingMiddleware);
 
-        // add the endpoints for the OpenAPI doc + ReDoc UI based on the Eidos document
-        app.MapEidosOpenApiAndReDoc();
-
-        // create schema + seed sample data once at startup
-        app.Services.GetRequiredService<IHumanResourcesRepository>().Initialize();
+        // add custom middleware to log HTTP requests and responses with Serilog; in production you'd likely want to use a more robust logging solution (e.g. with rolling file sinks, etc.) and not log at the INFO level
+        app.UseMiddleware<HttpRequestSummaryMiddleware>();
 
         // add the endpoints for the HR service based on the Eidos document
         app.MapHrEndpoints();
 
+        // ////////////////////////
+
+        // create schema + seed sample data once at startup
+        app.Services.GetRequiredService<IHumanResourcesRepository>().Initialize();
+
         app.Run();
 
-    }
-
-    private static async Task SimpleHttpLoggingMiddleware(HttpContext context, Func<Task> next)
-    {
-        var sw = Stopwatch.StartNew();
-        await next();
-        sw.Stop();
-
-        var logger = context.RequestServices
-            .GetRequiredService<ILoggerFactory>()
-            .CreateLogger("RequestSummary");
-
-        logger.LogInformation(
-            "{method} {path}{query} => {status} {reason} in {elapsed}ms",
-            context.Request.Method,
-            context.Request.Path,
-            context.Request.QueryString,
-            context.Response.StatusCode,
-            ReasonPhrases.GetReasonPhrase(context.Response.StatusCode),
-            sw.ElapsedMilliseconds);
     }
 }

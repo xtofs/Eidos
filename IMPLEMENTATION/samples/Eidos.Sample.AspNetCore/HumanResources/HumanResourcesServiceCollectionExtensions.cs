@@ -1,3 +1,6 @@
+using Eidos.AspNetCore;
+using Eidos.Core;
+
 namespace Eidos.Sample.HumanResources;
 
 /// <summary>
@@ -11,12 +14,7 @@ public static class HumanResourcesServiceCollectionExtensions
 
     public static WebApplicationBuilder AddHumanResourcesService(this WebApplicationBuilder builder)
     {
-        AddHumanResourcesService(builder.Services, builder.Configuration);
-        return builder;
-    }
-
-    public static void AddHumanResourcesService(this IServiceCollection services, IConfiguration configuration)
-    {
+        var (services, configuration) = (builder.Services, builder.Configuration);
 
         var provider = configuration["Hr:Provider"];
 
@@ -29,12 +27,28 @@ public static class HumanResourcesServiceCollectionExtensions
             var connectionString = configuration.GetConnectionString("HrDb") ?? "Data Source=hr.db";
             services.AddSingleton<IHumanResourcesRepository>(_ => new SqliteHumanResourcesRepository(connectionString));
         }
+        services.AddSingleton(HumanResourcesService.ParsedSchema);
+
+        services.AddSingleton<HumanResourcesService>();
+
+        // add the Eidos OpenAPI document generator and UI using the schema registered in DI
+        builder.AddEidosOpenApi(builder.Configuration.GetSection("Eidos:OpenApi"));
+        builder.AddEidosMetadata(builder.Configuration.GetSection("Eidos"));
+
+        return builder;
     }
 
     public static IEndpointRouteBuilder MapHrEndpoints(this WebApplication app)
     {
-        var repository = app.Services.GetRequiredService<IHumanResourcesRepository>();
-        new HumanResourcesService(repository).MapEndpoints(app);
+
+        // redirect root to ReDoc for a friendlier default landing page
+        // redirect root to the configured documentation UI path
+        var uiPath = app.Services.GetRequiredService<EidosOpenApiRouteOptions>().UiPath;
+        app.MapGet("/", () => Results.Redirect(uiPath));
+
+        var svc = app.Services.GetRequiredService<HumanResourcesService>();
+        svc.MapEndpoints(app);
+
         return app;
     }
 }

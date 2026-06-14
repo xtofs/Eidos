@@ -6,6 +6,7 @@
         "HTAB",
         "lifecycles",
         "redoc",
+        "Serilog",
         "Swashbuckle",
         "writeonce",
         "xunit"

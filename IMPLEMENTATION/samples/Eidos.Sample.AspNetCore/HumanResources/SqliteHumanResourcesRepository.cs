@@ -9,16 +9,11 @@ namespace Eidos.Sample.HumanResources;
 /// drop a <c>:memory:</c> database between calls). Selected via <c>Hr:Provider = Sqlite</c> (default);
 /// the connection string comes from <c>ConnectionStrings:HrDb</c> (default <c>Data Source=hr.db</c>).
 /// </summary>
-internal sealed class SqliteHumanResourcesRepository : IHumanResourcesRepository, IDisposable
+internal sealed class SqliteHumanResourcesRepository(string connectionString) : IHumanResourcesRepository, IDisposable
 {
-    private readonly string _connectionString;
+    private readonly string _connectionString = connectionString;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private SqliteConnection? _connection;
-
-    public SqliteHumanResourcesRepository(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
 
     public void Initialize()
     {
