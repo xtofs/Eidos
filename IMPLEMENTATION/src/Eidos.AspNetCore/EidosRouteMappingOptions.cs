@@ -1,4 +1,5 @@
 using Eidos.Core.OpenApi;
+using Microsoft.AspNetCore.Builder;
 
 namespace Eidos.AspNetCore;
 
@@ -15,4 +16,9 @@ public sealed class EidosRouteMappingOptions
     public Func<string, string> CollectionSegmentStrategy { get; set; } = ApiNaming.CollectionSegmentName;
 
     public Func<string, string> ItemRouteParameterStrategy { get; set; } = _ => ApiNaming.KeyParameter;
+
+    public void SetDefaultLogger(WebApplication app)
+    {
+                this.OnDiagnostic = diagnostic => app.Logger.LogDiagnostic(diagnostic);
+    }
 }

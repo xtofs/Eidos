@@ -35,8 +35,7 @@ internal sealed class HumanResourcesService(IHumanResourcesRepository repository
 
     public void MapEndpoints(WebApplication app)
     {
-        var map = app.CreateEidosMapBuilder(schema, options =>
-                options.OnDiagnostic = diagnostic => app.Logger.LogDiagnostic(diagnostic))
+        var map = app.CreateEidosMapBuilder(schema, options => options.SetDefaultLogger(app))
             .Entity("Person", p => p
                 .List(ListPeople)
                 .GetSingle(GetPersonEntity)
