@@ -1,14 +1,25 @@
 {
     "cSpell.words": [
         "Activatable",
+        "Approvable",
         "appsettings",
+        "CMMN",
+        "Disableable",
+        "disambiguator",
         "DQUOTE",
+        "Endurants",
+        "Guizzardi",
         "HTAB",
         "lifecycles",
+        "Naur",
         "redoc",
+        "relatum",
+        "relator",
         "Serilog",
         "Swashbuckle",
+        "writability",
         "writeonce",
-        "xunit"
+        "xunit",
+        "εἶδος"
     ]
 }
